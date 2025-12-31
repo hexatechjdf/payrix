@@ -825,49 +825,56 @@ class CRM
 
     public static function fetchLocations($request)
     {
-        $user      = auth()->user();
-        $token     = $user->token ?? null;
+        $user      = loginUser();
+        $token     = $user->crmtoken ?? null;
         $status    = false;
         $message   = 'Connect to Agency First';
         $type      = '';
-        $detail    = '';
-        $load_more = false;
-        if ($token) {
-            $type  = $token->user_type;
-            $query = '';
-            $limit = $request->query('limit', 100);
+        $allDetails = [];
 
-            if ($request->has('page')) {
-                if ($request->page < 1) {
-                    $request->page = 0;
-                } else {
-                    $request->page = $request->page - 1;
-                }
-                $query .= 'skip=' . ($limit * $request->page);
-            }
-
-            $query = 'locations/search?' . $query . '&companyId=' . $token->company_id . '&limit=' . $limit;
-
-            if ($type !== self::$lang_com) {
-                return response()->json(['status' => $status, 'message' => $message, 'type' => $type, 'detail' => $detail, 'loadMore' => $load_more]);
-            } else {
-                $detail = self::agencyV2($user->id, $query, 'get', '', [], false, $token);
-            }
-            if ($detail && property_exists($detail, 'locations')) {
-
-                $detail       = $detail->locations;
-                $load_more    = count($detail) == $limit;
-                $ids          = collect($detail)->pluck('id')->toArray();
-                $exist_tokens = static::$crm::pluck('location_id')->toArray();
-                foreach ($detail as $det) {
-                    $det->already_exist = in_array($det->id, $exist_tokens);
-                }
-                $status = true;
-            }
+        if (!$token) {
+            return [$status, $message, $allDetails, false];
         }
-        return [$status, $message, $detail, $load_more];
-        // return response()->json(['status' => $status, 'message' => $message, 'type' => $type, 'detail' => $detail, 'loadMore' => $load_more]);
+
+        $type = $token->user_type;
+        if ($type !== self::$lang_com) {
+            return [$status, $message, $allDetails, false];
+        }
+
+        $limit = $request->query('limit', 100);
+        $page  = 0;
+        $load_more = true;
+
+        while ($load_more) {
+            $skip  = $limit * $page;
+            $query = 'locations/search?skip=' . $skip . '&companyId=' . $token->company_id . '&limit=' . $limit;
+
+            $detail = self::agencyV2($user->id, $query, 'get', '', [], false, $token);
+
+            if (!$detail || !property_exists($detail, 'locations') || empty($detail->locations)) {
+                $load_more = false;
+                break;
+            }
+
+            $locations = $detail->locations;
+
+            $exist_tokens = static::$crm::pluck('location_id')->toArray();
+            foreach ($locations as $det) {
+                $det->already_exist = in_array($det->id, $exist_tokens);
+            }
+
+            $allDetails = array_merge($allDetails, $locations);
+
+            $load_more = count($locations) == $limit;
+            $page++;
+        }
+
+        $status = true;
+        $message = 'Locations fetched successfully';
+
+        return $allDetails;
     }
+
 
     public static function authChecking($req)
     {

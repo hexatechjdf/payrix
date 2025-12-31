@@ -14,10 +14,10 @@
 						<div class="top-menu-left d-none d-lg-block">
 							<ul class="nav">
 							  <li class="nav-item">
-								<a class="nav-link" href="app-emailbox.html"><i class='bx bx-home-alt'></i></a>
+								<a class="nav-link" href="{{ route('admin.index') }}"><i class='bx bx-home-alt'></i></a>
 							  </li>
 							  <li class="nav-item">
-								<a class="nav-link" href="app-chat-box.html"><i class='bx bx-cube'></i></a>
+								<a class="nav-link" href="{{ route('admin.settings') }}"><i class='bx bx-cube'></i></a>
 							  </li>
 						  </ul>
 						 </div>
@@ -39,7 +39,7 @@
 						</div>
 						<div class="user-box dropdown px-3">
 							<a class="d-flex align-items-center nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-								<img src="assets/images/avatars/avatar-2.png" class="user-img" alt="user avatar">
+								<img src="{{asset('assets/images/avatars/avatar-2.png')}}" class="user-img" alt="user avatar">
 								<div class="user-info ps-3">
 									<p class="user-name mb-0">{{ @$user->name ?? 'Admin' }}</p>
 									<p class="designattion mb-0">{{  isAdmin() ? 'Admin' : 'Location' }}</p>

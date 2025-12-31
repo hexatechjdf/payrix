@@ -86,6 +86,54 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-md-12">
+            <form class="submitForm" action="{{ route('admin.settings.save') }}" method="POST">
+                @csrf
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="h4">Field Routes Setting Keys</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12 mt-2">
+                                <div class="">
+                                    <label class="form-label">Sub Domain</label>
+                                    <input type="text" class="form-control "
+                                        value="{{ $settings['field_subdomain'] ?? '' }}" id="field_subdomain"
+                                        name="setting[field_subdomain]"required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mt-2">
+                                <div class="">
+                                    <label class="form-label">Api Key</label>
+                                    <input type="text" class="form-control "
+                                        value="{{ $settings['field_api_key'] ?? '' }}" id="field_api_key"
+                                        name="setting[field_api_key]"required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mt-2">
+                                <div class="">
+                                    <label class="form-label">Token</label>
+                                    <input type="text" class="form-control "
+                                        value="{{ $settings['field_token'] ?? '' }}" id="field_token"
+                                        name="setting[field_token]"required>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row ">
+                            <div class="col-md-12 mt-3">
+                                <button id="form_submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 @endsection
 

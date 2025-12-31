@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\IndexController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\MappingController;
 
 
 
@@ -15,6 +16,7 @@ Route::name('admin.')->middleware(['auth'])->group(function () {
 
     Route::name('mappings.')->prefix('mappings')->group(function () {
         Route::get('/offices', [MappingController::class, 'offices'])->name('offices');
+        Route::get('/offices/fetch/data', [MappingController::class, 'fetchOfficeMappingData'])->name('offices.fetch.data');
     });
 
 });
