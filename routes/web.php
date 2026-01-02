@@ -13,7 +13,33 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+
+
 });
+
+use App\Jobs\Pulling\CustomField\ManageFiltersJob;
+use App\Jobs\Pulling\Customers\PullDataJob;
+
+Route::get('/test/job', function(){
+
+    // $params['dateAdded'] = [
+    //     'operator' => '>=',
+    //     'value' => [now()]
+    // ];
+    // $params['dateUpdated'] = [
+    //     'operator' => '>=',
+    //     'value' => [now()]
+    // ];
+
+    PullDataJob::dispatchSync(null,0,$params);
+    return;
+    ManageFiltersJob::dispatchSync('services');
+    // ManageFiltersJob::dispatchSync('flags');
+});
+
+
+
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

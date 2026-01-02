@@ -17,6 +17,7 @@ Route::name('admin.')->middleware(['auth'])->group(function () {
     Route::name('mappings.')->prefix('mappings')->group(function () {
         Route::get('/offices', [MappingController::class, 'offices'])->name('offices');
         Route::get('/offices/fetch/data', [MappingController::class, 'fetchOfficeMappingData'])->name('offices.fetch.data');
+        Route::post('/offices/store/data', [MappingController::class, 'storeOfficeMappingData'])->name('offices.store.data');
     });
 
 });

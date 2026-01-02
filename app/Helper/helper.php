@@ -4,6 +4,7 @@ use App\Helper\gCache;
 use App\Models\OAuthClient;
 use App\Models\Setting;
 use App\Models\User;
+use App\Models\OfficeMapping;
 use App\Models\Connectivity;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -329,3 +330,45 @@ function isAgencyConnected(): bool
             return false;
         }
     }
+
+
+function getFieldRoutsKeys()
+{
+    return [
+
+        'flags' => [
+            'id' => 'genericFlagID',
+            'search_id' => 'genericFlagIDs',
+            'data' => 'genericFlags',
+            'group_by' => 'officeID',
+            'function' => 'getFlags',
+        ],
+        'services' => [
+            'id' => 'typeID',
+            'search_id' => 'typeIDs',
+            'data' => 'serviceTypes',
+            'group_by' => 'officeID',
+            'function' => 'getSubscriptions',
+        ]
+
+    ];
+}
+
+
+function getOfficeParams($location_id = null,$office_id = null)
+{
+    $existingMappings = [];
+    $keys = [];
+
+    if(!$location_id)
+    {
+        $existingMappings = OfficeMapping::pluck('location_id','office_id')->toArray();
+        $keys = array_keys($existingMappings);
+
+    }else{
+        $existingMappings[$office_id] = $location_id;
+        $keys = [$office_id];
+    }
+
+    return [$keys, $existingMappings];
+}

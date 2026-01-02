@@ -102,19 +102,70 @@ class FieldRouteService
                 $payload
             );
 
-            return $data['offices'] ?? [];
+            return @$data['offices'] ?? [];
         });
 
         return $offices;
     }
-    public function getOfficesIds($params = [])
+
+    public function getSubscriptions($params = [])
     {
+        $cacheKey = 'service_types';
+
+        $res = Cache::remember($cacheKey, now()->addMinutes(30), function() use($params) {
+            $payload = ['includeData' => 1];
+            $payload = array_merge($payload, $params);
+
+            $data = $this->request(
+                'POST',
+                'serviceType/search',
+                $payload
+            );
+
+            return @$data;
+        });
+
+        return $res;
+        // ['serviceTypes'] ?? []
+    }
+
+    public function getFlags($params = [])
+    {
+        $cacheKey = 'generic_flags';
+
+        $res = Cache::remember($cacheKey, now()->addMinutes(30), function() use($params) {
+            $payload = ['includeData' => 1];
+
+            $payload = array_merge($payload, $params);
+
+            $data = $this->request(
+                'POST',
+                'genericFlag/search',
+                $payload
+            );
+
+            return @$data;
+        });
+
+        return $res;
+        // ['genericFlags'] ?? []
+    }
+
+    public function getCustomers($params = [])
+    {
+        // default payload
         $payload = ['includeData' => 1];
 
-        return $this->request(
-            'POST',           // must be POST, not GET
-            'office/search',
+        // merge params with default payload
+        $payload = array_merge($payload, $params);
+
+        $data = $this->request(
+            'POST',
+            'customer/search',
             $payload
         );
+
+        return $data ?? [];
     }
+
 }
