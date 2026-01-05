@@ -8,6 +8,7 @@ use App\Models\OfficeMapping;
 use App\Models\Connectivity;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
+use App\Helper\CRM;
 
 function supersetting($key, $default = '')
 {
@@ -131,12 +132,12 @@ function locationTokenCacheKey($locationId)
 }
 
 if (! function_exists('getLocationToken')) {
-    function getLocationToken($locationId, $userId = null)
+    function getLocationToken($locationId, $userId = null,$company_id = null)
     {
         $tokenCacheKey = locationTokenCacheKey($locationId);
 
-        return \Cache::remember($tokenCacheKey, 10 * 60, function () use ($locationId, $userId) {
-            return \CRM::getTokenByLocation($locationId);
+        return \Cache::remember($tokenCacheKey, 10 * 60, function () use ($locationId,$company_id) {
+            return CRM::getTokenByLocation($locationId,$company_id);
         });
     }
 }
@@ -342,6 +343,9 @@ function getFieldRoutsKeys()
             'data' => 'genericFlags',
             'group_by' => 'officeID',
             'function' => 'getFlags',
+            'search_key' => 'Flags',
+            'search_name' => 'Generic Flags',
+            'column_key' => 'generic_flags',
         ],
         'services' => [
             'id' => 'typeID',
@@ -349,6 +353,9 @@ function getFieldRoutsKeys()
             'data' => 'serviceTypes',
             'group_by' => 'officeID',
             'function' => 'getSubscriptions',
+            'search_key' => 'Subscriptions',
+            'search_name' => 'Active Subscriptions',
+            'column_key' => 'active_subscriptions',
         ]
 
     ];
@@ -371,4 +378,31 @@ function getOfficeParams($location_id = null,$office_id = null)
     }
 
     return [$keys, $existingMappings];
+}
+
+
+function defaultContactFields()
+{
+    return [
+        "id" => 'Contact Id',
+        "contactName" => '',
+        "locationId" => '',
+        "firstName" =>'',
+        "lastName" => '',
+        "email" => '',
+        "timezone" => '',
+        "companyName" => '',
+        "phone" => '',
+        "dnd" => '',
+        "dndSettings" => '',
+        "type" => '',
+        "source" => '',
+        "assignedTo" => '',
+        "address1" => '',
+        "city" => '',
+        "state" => '',
+        "country" => '',
+        "postalCode" => '',
+        "dateOfBirth" => '',
+    ];
 }

@@ -32,6 +32,10 @@ Route::get('/test/job', function(){
     //     'value' => [now()]
     // ];
 
+    ManageFiltersJob::dispatchSync('services');
+
+    return;
+
     PullDataJob::dispatchSync(null,0,$params);
     return;
     ManageFiltersJob::dispatchSync('services');

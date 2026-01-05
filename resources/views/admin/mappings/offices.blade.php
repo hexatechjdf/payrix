@@ -320,7 +320,6 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
 
-                <!-- Gradient Header -->
                 <div class="modal-header-gradient text-center">
                     <div class="w-100">
                         <h5>Loading Data</h5>
@@ -328,7 +327,6 @@
                     </div>
                 </div>
 
-                <!-- Status Items -->
                 <div class="modal-body p-4">
 
                     <div class="fetch-item d-flex align-items-center gap-3 mb-3">
@@ -376,7 +374,6 @@
                         </div>
                     </div>
 
-                    <!-- Success Message (hidden by default) -->
                     <div class="text-center pt-4 d-none" id="success-message">
                         <span class="success-badge">
                             <i class="fa fa-check"></i>
@@ -399,7 +396,6 @@
             let officesData = [];
 
             $('#loader').show();
-
             $.ajax({
                 url: '{{ route('admin.mappings.offices.fetch.data') }}',
                 type: 'GET',
@@ -560,23 +556,17 @@
             }).then((result) => {
 
                 if (result.isConfirmed) {
-
-                    // Show modal
                     $('#fetchModal').modal('show');
-
-                    // Reset all status icons and progress bars
                     $('.status-icon').html('<i class="bi bi-arrow-repeat"></i>').removeClass(
                         'text-success text-danger');
                     $('.progress-bar').css('width', '0%').removeClass('bg-success bg-danger');
 
-                    // Run all AJAX requests
                     let requests = [
                         runAjax('/fetch/offices', 'status-flags', 'progress-flags'),
                         runAjax('/fetch/customers', 'status-customers', 'progress-customers'),
                         runAjax('/fetch/services', 'status-services', 'progress-services')
                     ];
 
-                    // When all requests complete
                     $.when.apply($, requests).done(function() {
                         $('#success-message').removeClass('d-none');
                     });
@@ -591,9 +581,8 @@
             let $status = $('#' + statusId);
             let $progress = $('#' + progressId);
 
-            // Set loader / spinner
             $status.html('<span class="spinner-border spinner-border-sm"></span>');
-            $progress.css('width', '30%'); // initial animation
+            $progress.css('width', '30%');
 
             // $.ajax({
             //     url: url,
