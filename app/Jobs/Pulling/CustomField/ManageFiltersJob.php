@@ -40,10 +40,9 @@ class ManageFiltersJob implements ShouldQueue
      */
     public function handle()
     {
-            $t = getLocationToken('JoqQ51Bl3LEmR42l6LrG',null,1);
-        $t = CRM::getContactFields('JoqQ51Bl3LEmR42l6LrG',1,$t);
-        dd($t);
-
+        //     $t = getLocationToken('JoqQ51Bl3LEmR42l6LrG',null,1);
+        // $t = CRM::getContactFields('JoqQ51Bl3LEmR42l6LrG',1,$t);
+        // dd($t);
 
         $params = $this->param;
         $id = $this->office_id ?? null;
@@ -55,65 +54,6 @@ class ManageFiltersJob implements ShouldQueue
         PullOptionsJob::dispatchSync($this->data_key,$existingMappings,$params,$this->is_delay);
     }
 
-    public function getFieldByDb($locationId, $column_key)
-    {
-        $l = LocationCustomField::where('location_id' , $locationId)->select($column_key);
-
-        return @$l;
-    }
-
-    public function createOrUpdateCustomField($locationId,$token,$key = 'flags')
-    {
-
-        $data = getFieldRoutsKeys()[$key];
-
-        $search_key = 'Invoice' ?? $data['search_key'];
-        $name = 'Invoice Date' ?? $data['search_name'];
-        $column_key = 'generic_flags' ?? $data['column_key'];
-
-        $l = $this->getFieldByDb($locationId, $column_key) ?? CRM::searchLocationCustomFields($locationId, $token,$key);
-
-        if(!$l)
-        {
-
-        }
-
-
-
-
-
-
-        $customFields = self::getLocationCustomFields($locationId, $token,$key);
-
-         return $customFields;
-        $contactFields = defaultContactFields();
-        $cacheKey = "contactFields";
-
-        $data = Cache::remember($cacheKey, 3 * 3, function () use ($contactFields, $locationId) {
-            $customFields = self::getLocationCustomFields($locationId);
-            $dataa = [];
-            if(count($customFields) > 0)
-            {
-                CustomFields::updateOrCreate(['key' => $locationId],[ 'content' => json_encode($customFields)]);
-                foreach($customFields as $k => $f)
-                {
-                    $dataa[$f['fieldKey']] = $f['name'];
-                }
-            }
-            $mergedFields = array_merge($contactFields, $dataa);
-            return $mergedFields;
-        });
-        $array = [];
-        if ($is_values) {
-            foreach ($data as $key => $field) {
-                $keyy = $field && !empty($field) ? $field : $key;
-                $array[$keyy] = '{{' . $key . '}}';
-            }
-
-            return $array;
-        }
-        return $data;
-    }
 
 
 }

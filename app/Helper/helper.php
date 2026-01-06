@@ -5,9 +5,11 @@ use App\Models\OAuthClient;
 use App\Models\Setting;
 use App\Models\User;
 use App\Models\OfficeMapping;
+use App\Models\Customer;
 use App\Models\Connectivity;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
+use App\Models\LocationCustomField;
 use App\Helper\CRM;
 
 function supersetting($key, $default = '')
@@ -339,6 +341,7 @@ function getFieldRoutsKeys()
 
         'flags' => [
             'id' => 'genericFlagID',
+            'value' => 'code',
             'search_id' => 'genericFlagIDs',
             'data' => 'genericFlags',
             'group_by' => 'officeID',
@@ -349,6 +352,7 @@ function getFieldRoutsKeys()
         ],
         'services' => [
             'id' => 'typeID',
+            'value' => 'description',
             'search_id' => 'typeIDs',
             'data' => 'serviceTypes',
             'group_by' => 'officeID',
@@ -404,5 +408,34 @@ function defaultContactFields()
         "country" => '',
         "postalCode" => '',
         "dateOfBirth" => '',
+    ];
+}
+
+
+function updateOrCreateField($locationId,$id,$options,$column_key)
+{
+    return LocationCustomField::updateOrCreate(
+        ['location_id' => $locationId],
+        [$column_key => $id, $column_key.'_options' => $options]
+    );
+}
+
+
+function updateOrCreateCustomer($locationId,$contact_id,$data,$office_id,$customer_id)
+{
+    return Customer::updateOrCreate(
+        ['customer_id' => $customer_id],
+        ['contact_id' => $contact_id, 'office_id' => $office_id, 'location_id' => $locationId, 'body' => $data]
+    );
+}
+
+
+function splitOption($value)
+{
+    [$id, $label] = explode('_', $value, 2);
+    return [
+        'id' => $id,
+        'label' => $label,
+        'full' => $value
     ];
 }

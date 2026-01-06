@@ -4,6 +4,7 @@ namespace App\Helper;
 use App\Helper\gCache;
 use App\Models\CrmToken;
 use App\Models\User;
+
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -657,7 +658,6 @@ class CRM
         $cd = self::makeCall($url1, $method, $dat, $headers, $json);
 
         $bd = json_decode($cd);
-        // dd($bd,$url1);
         if (self::isExpired($bd) && $retries == 0) {
             list($is_refresh, $location1) = self::getRefreshToken($company_id, $location, false);
             //dd($is_refresh, $location1,$location);
@@ -961,12 +961,14 @@ class CRM
 
             $endPoint = 'contacts/' . $contactId;
 
-            $detail = self::crmV2($token->user_id, $endPoint, 'put', $payload, [], true, $locationId, $token);
+            $response = self::crmV2($token->user_id, $endPoint, 'put', $payload, [], true, $locationId, $token);
 
-            if (! $responseFull) {
-                return checkError($detail);
+            dd($response);
+
+            if ($response && property_exists($response, 'contact')) {
+                \Log::info($response->contact->id);
+                return @$response->contact->id;
             }
-            return $detail;
 
         } catch (\Exception $e) {
             // throw $e->getMessage();
@@ -991,10 +993,12 @@ class CRM
             $query    = 'contacts/';
             $response = self::crmV2($token->user_id, $query, 'POST', $payload, [], true, $locationId, $token);
 
-            return $response ?? null;
+            if ($response && property_exists($response, 'contact')) {
+                \Log::info($response->contact->id);
+                return @$response->contact->id;
+            }
 
         } catch (\Exception $e) {
-            // throw $e->getMessage();
         }
 
         return null;
@@ -1027,7 +1031,6 @@ class CRM
         $contacts = [];
 
         try {
-
             $payload = [
                 "locationId" => $locationId,
                 "page"       => $page,
@@ -1038,13 +1041,17 @@ class CRM
             $endPoint = 'contacts/search';
 
             $response = self::crmV2($token->user_id, $endPoint, 'POST', $payload, [], true, $locationId, $token);
-            $contacts = $response->contacts ?? [];
+
+            // dd($response,$payload);
+            $contact = @$response->contacts ?? [];
+
+            return @$contact[0]->id ?? null;
 
         } catch (\Exception $e) {
             // throw $e->getMessage();
         }
 
-        return $contacts;
+        return null;
 
     }
 
@@ -1417,7 +1424,7 @@ class CRM
 
     public static function searchLocationCustomFields($locationId, $token,$search_key,$column_key,$name)
     {
-        if (! $locationId) {
+        if (!$locationId) {
             return [];
         }
         $token             = $token ?? getLocationToken($locationId);
@@ -1436,47 +1443,27 @@ class CRM
         } catch (\Exception $e) {
         }
 
-        $back = null;
+        $res = null;
         if ($matchedField && $column_key) {
-            $back = LocationCustomField::updateOrCreate(
-                ['location_id' => $locationId],
-                [$column_key => $matchedField->id, $column_key.'_options' => $matchedField->picklistOptions]
-            );
+            $res = updateOrCreateField($locationId,$matchedField->id,$matchedField->picklistOptions ?? [],$column_key);
         }
 
-        return $back;
+        return $res;
     }
 
-    public function manageCutomField($payload, $locationId,$token,$method, $url)
+    public static function manageCutomField($payload, $locationId,$token,$method, $url,$column_key)
     {
-        $payload = [
-            'name' => 'Services Interested',
-            'dataType' => 'TEXT',
-            'placeholder' => 'Select services',
-            'model' => 'contact',
-            'textBoxListOptions' => [
-                ['value' => 'SEO'],
-                ['value' => 'Web Development'],
-                ['value' => 'SMM'],
-            ]
-        ];
-
-
         try {
 
-            $endPoint = "locations/$locationId/customFields";
+            $response = self::crmV2($token->user_id, $url, $method, $payload, [], true, $locationId, $token);
 
-            $response = self::crmV2($token->user_id, $endPoint, 'GET', '', [], false, $locationId, $token);
-            dd($response);
+            if ($response && property_exists($response, 'customField')) {
 
-            if ($response && property_exists($response, 'customFields')) {
-                $customFields = $response->customFields ?? null;
-
-                $finalCustomFields = collect($customFields)->pluck('id', 'name')->toArray();
+                $matchedField = $response->customField;
+                updateOrCreateField($locationId,$matchedField->id,$matchedField->picklistOptions ?? [],$column_key);
             }
 
         } catch (\Exception $e) {
-            // throw $e->getMessage();
         }
 
 

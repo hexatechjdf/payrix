@@ -20,6 +20,8 @@ Route::middleware('auth')->group(function () {
 
 use App\Jobs\Pulling\CustomField\ManageFiltersJob;
 use App\Jobs\Pulling\Customers\PullDataJob;
+use App\Jobs\Pulling\Customers\PullFlagsJob;
+use App\Jobs\Pulling\Customers\PullSubscriptionsJob;
 
 Route::get('/test/job', function(){
 
@@ -32,12 +34,19 @@ Route::get('/test/job', function(){
     //     'value' => [now()]
     // ];
 
-    ManageFiltersJob::dispatchSync('services');
+    // ManageFiltersJob::dispatchSync('services');
+    // return;
 
+    PullSubscriptionsJob::dispatchSync('flags');
+    return;
+    PullFlagsJob::dispatchSync('flags');
+    return;
+    PullDataJob::dispatchSync();
     return;
 
-    PullDataJob::dispatchSync(null,0,$params);
-    return;
+
+
+
     ManageFiltersJob::dispatchSync('services');
     // ManageFiltersJob::dispatchSync('flags');
 });

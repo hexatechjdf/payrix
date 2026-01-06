@@ -16,6 +16,8 @@ class FieldRouteService
     {
         try {
 
+            $data['includeData'] = 1;
+
             $domain = supersetting('field_subdomain');
             $key    = supersetting('field_api_key');
             $token  = supersetting('field_token');
@@ -28,6 +30,8 @@ class FieldRouteService
 
             // $url = 'https://' . $domain . '.fieldroutes.com/' . $uri;
             $url = 'https://' . $domain . '.pestroutes.com/api/' . $uri;
+
+            // dd($url, $key , $token);
 
             if (in_array($method, ['GET', 'DELETE']) && !empty($data)) {
                 $url .= '?' . http_build_query($data);
@@ -94,12 +98,10 @@ class FieldRouteService
         $cacheKey = 'offices_list';
 
         $offices = Cache::remember($cacheKey, now()->addMinutes(30), function() {
-            $payload = ['includeData' => 1];
-
             $data = $this->request(
                 'POST',
                 'office/search',
-                $payload
+                $params
             );
 
             return @$data['offices'] ?? [];
@@ -113,13 +115,11 @@ class FieldRouteService
         $cacheKey = 'service_types';
 
         $res = Cache::remember($cacheKey, now()->addMinutes(30), function() use($params) {
-            $payload = ['includeData' => 1];
-            $payload = array_merge($payload, $params);
 
             $data = $this->request(
                 'POST',
                 'serviceType/search',
-                $payload
+                $params
             );
 
             return @$data;
@@ -134,14 +134,11 @@ class FieldRouteService
         $cacheKey = 'generic_flags';
 
         $res = Cache::remember($cacheKey, now()->addMinutes(30), function() use($params) {
-            $payload = ['includeData' => 1];
-
-            $payload = array_merge($payload, $params);
 
             $data = $this->request(
                 'POST',
                 'genericFlag/search',
-                $payload
+                $params
             );
 
             return @$data;
@@ -153,16 +150,34 @@ class FieldRouteService
 
     public function getCustomers($params = [])
     {
-        // default payload
-        $payload = ['includeData' => 1];
-
-        // merge params with default payload
-        $payload = array_merge($payload, $params);
-
         $data = $this->request(
             'POST',
             'customer/search',
-            $payload
+            $params
+        );
+
+        return $data ?? [];
+    }
+
+    public function getCustomerFlags($params = [])
+    {
+        $data = $this->request(
+            'POST',
+            'customerFlag/search',
+            $params
+        );
+
+        return $data ?? [];
+    }
+
+
+
+    public function getCustomerSubscriptions($params = [])
+    {
+        $data = $this->request(
+            'POST',
+            'subscription/search',
+            $params
         );
 
         return $data ?? [];

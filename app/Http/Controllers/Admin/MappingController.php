@@ -22,12 +22,15 @@ class MappingController extends Controller
 
     public function offices(Request $request)
     {
+          $flags = $this->fieldService->getCustomerFlags();
+        //   $flags = $this->fieldService->getSubscriptions(['officeIDs' => [8]]);
+        dd($flags);
+
         // $customers = $this->fieldService->getCustomers(['officeIDs' => [2]]);
 
         // dd( $customers);
 
-        // $flags = $this->fieldService->getFlags();
-        // dd($flags);
+
 
         //  $services = $this->fieldService->getSubscriptions();
 

@@ -7,7 +7,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use App\Helper\CRM;
 use App\Models\LocationCustomField;
 
-class UpdateOptionsJob implements ShouldQueue
+class SetOptionsJob implements ShouldQueue
 {
     use Queueable;
 
@@ -42,9 +42,11 @@ class UpdateOptionsJob implements ShouldQueue
         }
 
         $token = getLocationToken($this->location_id,null,1);
+
+        // CRM::getLocationCustomFields($this->location_id, $token);
+        // DD(123);
         $this->createOrUpdateCustomField($this->location_id,$token,$payload_options,$this->data_key);
 
-        dd($payload_options, $payload_values);
     }
 
     public function getFieldByDb($locationId, $column_key)
@@ -78,47 +80,51 @@ class UpdateOptionsJob implements ShouldQueue
 
             $d = CRM::manageCutomField($payload, $locationId,$token,'POST', "locations/$locationId/customFields",$column_key);
 
-            dd($d);
         }
         else{
-            dd($l->{$column_key.'_options'},$payload_values);
-        }
+            $arrayOne = @$l->{$column_key.'_options'} ?? [];
+            $arrayTwo = $payload_values ?? [];
 
+            $updatedValues = [];
+            $finalArrayOne = [];
+            $hasNewValues = false;
 
+            foreach ($arrayOne as $item) {
+                [$id, $label] = explode('_', $item, 2);
+                $oldMap[$id] = $label;
+            }
 
+            foreach ($arrayTwo as $item) {
+                [$id, $label] = explode('_', $item, 2);
 
+                if (isset($oldMap[$id])) {
 
+                    if ($oldMap[$id] !== $label) {
+                        $updatedValues[] = [
+                            'id' => $id,
+                            'old' => $oldMap[$id],
+                            'new' => $label,
+                        ];
+                    }
 
-        $customFields = self::getLocationCustomFields($locationId, $token,$key);
+                    $finalArrayOne[] = $id . '_' . $label;
 
-         return $customFields;
-        $contactFields = defaultContactFields();
-        $cacheKey = "contactFields";
-
-        $data = Cache::remember($cacheKey, 3 * 3, function () use ($contactFields, $locationId) {
-            $customFields = self::getLocationCustomFields($locationId);
-            $dataa = [];
-            if(count($customFields) > 0)
-            {
-                CustomFields::updateOrCreate(['key' => $locationId],[ 'content' => json_encode($customFields)]);
-                foreach($customFields as $k => $f)
-                {
-                    $dataa[$f['fieldKey']] = $f['name'];
+                } else {
+                    $hasNewValues = true;
+                    $finalArrayOne[] = $id . '_' . $label;
                 }
             }
-            $mergedFields = array_merge($contactFields, $dataa);
-            return $mergedFields;
-        });
-        $array = [];
-        if ($is_values) {
-            foreach ($data as $key => $field) {
-                $keyy = $field && !empty($field) ? $field : $key;
-                $array[$keyy] = '{{' . $key . '}}';
+
+            if (!empty($updatedValues) || $hasNewValues) {
+
+                $payload = [
+                    'options' => $finalArrayOne
+                ];
+                $id = $l->$column_key;
+                $d = CRM::manageCutomField($payload, $locationId,$token,'PUT', "locations/$locationId/customFields/$id",$column_key);
             }
 
-            return $array;
         }
-        return $data;
     }
 
 }

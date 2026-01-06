@@ -5,6 +5,7 @@ namespace App\Jobs\Pulling\CustomField;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use App\Services\FieldRouteService;
+use App\Jobs\Pulling\CustomField\SetOptionsJob;
 
 class PullOptionsJob implements ShouldQueue
 {
@@ -42,6 +43,7 @@ class PullOptionsJob implements ShouldQueue
         $data_key = $fieldKeys['data'];
         $groupby_key = $fieldKeys['group_by'];
         $method       = $fieldKeys['function'];
+        $value       = $fieldKeys['value'];
 
         do {
             if ($lastId) {
@@ -75,11 +77,11 @@ class PullOptionsJob implements ShouldQueue
         } while ($totalFetched < $count);
 
         $groupedByOffice = collect($allData)->groupBy($groupby_key);
-
-        // foreach($existingMappings as $key => $loc)
-        // {
-        //     $res = $groupedByOffice[$key];
-        // }
+        foreach($existingMappings as $key => $loc)
+        {
+            $res = $groupedByOffice[$key];
+            SetOptionsJob::dispatchSync($this->data_key,$res,$loc,$this->is_delay);
+        }
 
         dd($groupedByOffice);
     }

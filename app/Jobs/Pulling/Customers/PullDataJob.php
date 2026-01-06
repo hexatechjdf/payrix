@@ -8,6 +8,7 @@ use App\Services\FieldRouteService;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Bus\Batch;
 use App\Jobs\Pulling\Customers\ProcessChunkJob;
+use App\Jobs\Pulling\Customers\PullFlagsJob;
 
 
 class PullDataJob implements ShouldQueue
@@ -63,13 +64,37 @@ class PullDataJob implements ShouldQueue
                 ];
             }
 
-           $response = $fieldService->getCustomers($params);
-
-           dd($response);
+            $response = $fieldService->getCustomers($params);
 
             $count = $response['count'] ?? 0;
             $data = $response['customers'] ?? [];
+            $customer_ids = $response['customerIDs'] ?? [];
 
+            $groupedByOffice = collect($data)->groupBy('officeID');
+
+            foreach($existingMappings as $key => $loc)
+            {
+                $res = $groupedByOffice[$key];
+
+                $jobs = collect($res)
+                ->chunk(100)
+                ->map(function ($chunk) use($loc) {
+
+                    return new ProcessChunkJob($chunk->toArray(),$loc,$this->is_delay);
+                })
+                ->toArray();
+
+                Bus::batch($jobs)
+                ->name('Process Customers Batch')
+                ->dispatch();
+            }
+
+
+
+            dd($groupedByOffice);
+
+            // $response = $fieldService->getCustomerFlags(['customerIDs' => $customer_ids]);
+        //    dd($response);
 
             if (empty($data)) {
                 return;
@@ -80,7 +105,7 @@ class PullDataJob implements ShouldQueue
             $jobs = collect($data)
                 ->chunk(100)
                 ->map(function ($chunk) {
-                    return new ProcessChunkJob($chunk->toArray());
+                    return new ProcessChunkJob($chunk->toArray(),$this->location_id);
                 })
                 ->toArray();
 
