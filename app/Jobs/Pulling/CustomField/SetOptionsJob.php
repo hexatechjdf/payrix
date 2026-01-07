@@ -34,9 +34,14 @@ class SetOptionsJob implements ShouldQueue
         $payload_options = [];
         $payload_values = [];
 
+        $fieldKeys = getFieldRoutsKeys()[$this->data_key];
+
+        $id_key = $fieldKeys['id'];
+        $value       = $fieldKeys['value'];
+
         foreach($values as $v)
         {
-           $op = $v['typeID'].'_'.$v['description'];
+           $op = $v[$id_key].'_'.$v[$value];
            $payload_options[] = $op;
            $payload_values[] = ['value' => $op];
         }
@@ -45,22 +50,19 @@ class SetOptionsJob implements ShouldQueue
 
         // CRM::getLocationCustomFields($this->location_id, $token);
         // DD(123);
-        $this->createOrUpdateCustomField($this->location_id,$token,$payload_options,$this->data_key);
+        $this->createOrUpdateCustomField($this->location_id,$token,$payload_options,$fieldKeys);
 
     }
 
     public function getFieldByDb($locationId, $column_key)
     {
-        $l = LocationCustomField::where('location_id' , $locationId)->select($column_key,$column_key.'_options')->first();
+        $l = LocationCustomField::where('location_id' , $locationId)->whereNotNull($column_key)->select($column_key,$column_key.'_options')->first();
 
         return @$l;
     }
 
-    public function createOrUpdateCustomField($locationId,$token,$payload_values,$key = 'flags')
+    public function createOrUpdateCustomField($locationId,$token,$payload_values,$data)
     {
-
-        $data = getFieldRoutsKeys()[$key];
-
         $search_key = $data['search_key'];
         $name = $data['search_name'];
         $column_key = $data['column_key'];

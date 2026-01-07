@@ -22,9 +22,9 @@ class MappingController extends Controller
 
     public function offices(Request $request)
     {
-          $flags = $this->fieldService->getCustomerFlags();
+        //   $flags = $this->fieldService->getCustomerFlags();
         //   $flags = $this->fieldService->getSubscriptions(['officeIDs' => [8]]);
-        dd($flags);
+        // dd($flags);
 
         // $customers = $this->fieldService->getCustomers(['officeIDs' => [2]]);
 
@@ -37,9 +37,14 @@ class MappingController extends Controller
         //  dd($services);
 
         // dd($customers);
-        // $services = $this->fieldService->getSubscriptions();
+        $items = $this->fieldService->getEmployees(['officeIDs' => [1]]);
+         dd($items);
+        $services = $this->fieldService->getSubscriptions(['officeIDs' => [8]]);
+         dd($services);
 
-        // $flags = $this->fieldService->getFlags();
+        // $flags = $this->fieldService->getFlags(['officeIDs' => [1]]);
+
+        // dd($flags);
 
         //  $codes = collect($flags)
         // ->pluck('code')
@@ -124,4 +129,6 @@ class MappingController extends Controller
             ], 500);
         }
     }
+
+
 }

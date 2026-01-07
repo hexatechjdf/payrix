@@ -344,6 +344,21 @@
                         </div>
                     </div>
 
+                    <div class="fetch-item d-flex align-items-center gap-3">
+                        <div class="icon-box">
+                            <i class="fa fa-wrench"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <span class="fw-medium">Fetch Service Types</span>
+                            <div class="progress mt-2">
+                                <div class="progress-bar pending" id="progress-services"></div>
+                            </div>
+                        </div>
+                        <div class="status-icon pending" id="status-services">
+                            <i class="fa fa-sync fa-spin"></i>
+                        </div>
+                    </div>
+
                     <div class="fetch-item d-flex align-items-center gap-3 mb-3">
                         <div class="icon-box">
                             <i class="fa fa-users"></i>
@@ -359,20 +374,7 @@
                         </div>
                     </div>
 
-                    <div class="fetch-item d-flex align-items-center gap-3">
-                        <div class="icon-box">
-                            <i class="fa fa-wrench"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <span class="fw-medium">Fetch Service Types</span>
-                            <div class="progress mt-2">
-                                <div class="progress-bar pending" id="progress-services"></div>
-                            </div>
-                        </div>
-                        <div class="status-icon pending" id="status-services">
-                            <i class="fa fa-sync fa-spin"></i>
-                        </div>
-                    </div>
+
 
                     <div class="text-center pt-4 d-none" id="success-message">
                         <span class="success-badge">
@@ -544,8 +546,18 @@
         });
     </script>
 
+
     <script>
+        let flagsurl = `{{ route('admin.pulling.generic.flags') }}`;
+        let servicesurl = `{{ route('admin.pulling.service.types') }}`;
+        let customerurl = `{{ route('admin.pulling.customers') }}`;
+        let office_id  =null;
+        let location_id = null;
+
         $(document).on('click', '.fetch_initial', function() {
+
+            office_id   = $(this).closest('tr').data('office-id');
+            location_id = $(this).closest('tr').find('.destination-field').data('location-id');
 
             Swal.fire({
                 title: 'Confirmation',
@@ -555,63 +567,56 @@
                 confirmButtonText: 'Yes',
             }).then((result) => {
 
-                if (result.isConfirmed) {
-                    $('#fetchModal').modal('show');
-                    $('.status-icon').html('<i class="bi bi-arrow-repeat"></i>').removeClass(
-                        'text-success text-danger');
-                    $('.progress-bar').css('width', '0%').removeClass('bg-success bg-danger');
+                if (!result.isConfirmed) return;
 
-                    let requests = [
-                        runAjax('/fetch/offices', 'status-flags', 'progress-flags'),
-                        runAjax('/fetch/customers', 'status-customers', 'progress-customers'),
-                        runAjax('/fetch/services', 'status-services', 'progress-services')
-                    ];
+                $('#fetchModal').modal('show');
+                $('#success-message').addClass('d-none');
 
-                    $.when.apply($, requests).done(function() {
+                $('.status-icon').html('<i class="bi bi-arrow-repeat"></i>')
+                    .removeClass('text-success text-danger');
+                $('.progress-bar').css('width', '0%')
+                    .removeClass('bg-success bg-danger');
+
+                runAjax(flagsurl, 'status-flags', 'progress-flags')
+                    .then(() => runAjax(servicesurl, 'status-services', 'progress-services'))
+                    .then(() => runAjax(customerurl, 'status-customers', 'progress-customers'))
+                    .then(() => {
                         $('#success-message').removeClass('d-none');
                     });
-                }
             });
         });
 
-
         function runAjax(url, statusId, progressId) {
-            let dfd = $.Deferred();
-
             let $status = $('#' + statusId);
             let $progress = $('#' + progressId);
 
             $status.html('<span class="spinner-border spinner-border-sm"></span>');
-            $progress.css('width', '30%');
+            $progress
+                .css('width', '30%')
+                .removeClass('bg-success bg-danger');
 
-            // $.ajax({
-            //     url: url,
-            //     method: 'GET',
-            //     success: function(res) {
-            //         $status.html('<i class="bi bi-check-lg text-success"></i>');
-            //         $progress.css('width', '100%').addClass('bg-success');
-            //         dfd.resolve();
-            //     },
-            //     error: function(err) {
-            //         $status.html('<i class="bi bi-x-lg text-danger"></i>');
-            //         $progress.css('width', '100%').addClass('bg-danger');
-            //         dfd.resolve(); // still resolve so that $.when works
-            //     },
-            //     beforeSend: function() {
-            //         // animate progress gradually
-            //         let width = 0;
-            //         let interval = setInterval(function() {
-            //             if (width >= 90) {
-            //                 clearInterval(interval);
-            //             } else {
-            //                 width += 5;
-            //                 $progress.css('width', width + '%');
-            //             }
-            //         }, 200);
-            //     }
-            // });
-
-            return dfd.promise();
+            return $.ajax({
+                url: url,
+                data:{office_id:office_id, location_id:location_id},
+                method: 'GET',
+                beforeSend: function() {
+                    let width = 30;
+                    let interval = setInterval(function() {
+                        if (width >= 90) {
+                            clearInterval(interval);
+                        } else {
+                            width += 5;
+                            $progress.css('width', width + '%');
+                        }
+                    }, 200);
+                }
+            }).done(function() {
+                $status.html('<i class="bi bi-check-lg text-success"></i>');
+                $progress.css('width', '100%').addClass('bg-success');
+            }).fail(function() {
+                $status.html('<i class="bi bi-x-lg text-danger"></i>');
+                $progress.css('width', '100%').addClass('bg-danger');
+            });
         }
     </script>
 @endpush

@@ -97,7 +97,7 @@ class FieldRouteService
     {
         $cacheKey = 'offices_list';
 
-        $offices = Cache::remember($cacheKey, now()->addMinutes(30), function() {
+        $offices = Cache::remember($cacheKey, now()->addMinutes(30), function() use($params) {
             $data = $this->request(
                 'POST',
                 'office/search',
@@ -114,38 +114,26 @@ class FieldRouteService
     {
         $cacheKey = 'service_types';
 
-        $res = Cache::remember($cacheKey, now()->addMinutes(30), function() use($params) {
-
-            $data = $this->request(
-                'POST',
-                'serviceType/search',
-                $params
-            );
-
-            return @$data;
-        });
+        $res = $this->request(
+            'POST',
+            'serviceType/search',
+            $params
+        );
 
         return $res;
-        // ['serviceTypes'] ?? []
     }
 
     public function getFlags($params = [])
     {
         $cacheKey = 'generic_flags';
 
-        $res = Cache::remember($cacheKey, now()->addMinutes(30), function() use($params) {
-
-            $data = $this->request(
-                'POST',
-                'genericFlag/search',
-                $params
-            );
-
-            return @$data;
-        });
+        $res = $this->request(
+            'POST',
+            'genericFlag/search',
+             $params
+        );
 
         return $res;
-        // ['genericFlags'] ?? []
     }
 
     public function getCustomers($params = [])
@@ -153,6 +141,17 @@ class FieldRouteService
         $data = $this->request(
             'POST',
             'customer/search',
+            $params
+        );
+
+        return $data ?? [];
+    }
+
+    public function getEmployees($params = [])
+    {
+        $data = $this->request(
+            'POST',
+            'employee/search',
             $params
         );
 
@@ -169,7 +168,6 @@ class FieldRouteService
 
         return $data ?? [];
     }
-
 
 
     public function getCustomerSubscriptions($params = [])

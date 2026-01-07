@@ -858,11 +858,14 @@ class CRM
         $page  = 0;
         $load_more = true;
 
+
         while ($load_more) {
+
             $skip  = $limit * $page;
             $query = 'locations/search?skip=' . $skip . '&companyId=' . $token->company_id . '&limit=' . $limit;
 
             $detail = self::agencyV2($user->id, $query, 'get', '', [], false, $token);
+
 
             if (!$detail || !property_exists($detail, 'locations') || empty($detail->locations)) {
                 $load_more = false;
@@ -1252,19 +1255,17 @@ class CRM
             return [];
         }
 
-        $token = $token ?? getLocationToken($locationId); // getTokenByLocation($locationId);
-                                                          // dd($token);
+        $token = $token ?? getLocationToken($locationId);
         $users = [];
-        // dd($token);
         try {
 
             $endPoint = "users/search?companyId=$token->company_id";
-
             if (! empty($params)) {
                 $endPoint .= "&{$params}";
             }
 
             $response = self::crmV2($token->user_id, $endPoint, 'GET', '', [], false, $locationId, $token);
+            dd($response);
 
             if ($response && property_exists($response, 'users')) {
                 $users = $response->users ?? null;
@@ -1347,49 +1348,6 @@ class CRM
         return $finalCustomFields;
     }
 
-    public static function httpHit($url, $method = 'POST', $payload = [])
-    {
-
-        $mainUrl = $url;
-
-
-        $headers = [
-            'Accept'       => 'application/json',
-            'Content-Type' => 'application/x-www-form-urlencoded',
-        ];
-
-        $request = Http::withHeaders($headers);
-
-        switch (strtoupper($method)) {
-            case 'POST':
-                $response = $request->asForm()->post($mainUrl, $payload);
-                break;
-
-            case 'PUT':
-                $response = $request->asForm()->put($mainUrl, $payload);
-                break;
-
-            case 'DELETE':
-                $response = $request->asForm()->delete($mainUrl, $payload);
-                break;
-
-            default: // GET
-                $response = $request->get($mainUrl, $payload);
-                break;
-        }
-
-        if ($response->failed()) {
-            \Log::error("API Error", [
-                'url'     => $mainUrl,
-                'method'  => $method,
-                'payload' => $payload,
-                'status'  => $response->status(),
-                'body'    => $response->body(),
-            ]);
-        }
-
-        return $response->json();
-    }
 
     public static function getContactFields($locationId, $is_values = null,$token = null)
     {

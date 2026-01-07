@@ -119,5 +119,13 @@ return [
         //     'unitIDs' => 'unitIDs',
         // ],
     ],
+    'appointment' => [
+        'calendarId' => 'type',
+        'contactId' => 'customerID',
+        'assignedUserId' => 'employeeID',
+        'notes' => 'notes',
+        'startTime' => 'start',
+        'endTime' => 'end',
+    ];,
 
 ];

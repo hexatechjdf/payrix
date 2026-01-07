@@ -26,12 +26,12 @@ class PullDataJob implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        $last_id = null,
-        $fetched_count = 0,
         $param = [],
         $location_id = null,
         $office_id = null,
         $is_delay = true
+        $last_id = null,
+        $fetched_count = 0,
     ) {
         $this->last_id   = $last_id;
         $this->fetched_count   = $fetched_count;
@@ -68,6 +68,7 @@ class PullDataJob implements ShouldQueue
 
             $count = $response['count'] ?? 0;
             $data = $response['customers'] ?? [];
+            $totalFetched += count($data);
             $customer_ids = $response['customerIDs'] ?? [];
 
             $groupedByOffice = collect($data)->groupBy('officeID');
@@ -89,41 +90,18 @@ class PullDataJob implements ShouldQueue
                 ->dispatch();
             }
 
-
-
-            dd($groupedByOffice);
-
-            // $response = $fieldService->getCustomerFlags(['customerIDs' => $customer_ids]);
-        //    dd($response);
-
-            if (empty($data)) {
-                return;
-            }
-
-            $totalFetched += count($data);
-
-            $jobs = collect($data)
-                ->chunk(100)
-                ->map(function ($chunk) {
-                    return new ProcessChunkJob($chunk->toArray(),$this->location_id);
-                })
-                ->toArray();
-
-            Bus::batch($jobs)
-                ->name('Process Customers Batch')
-                ->dispatch();
-
             $last   = end($data);
             $lastId = $last['customerID'] ?? null;
 
             if ($totalFetched < $count && $lastId) {
                 self::dispatch(
-                    $lastId,
-                    $totalFetched,
                     $this->param,
                     $this->location_id,
                     $this->office_id,
                     $this->is_delay
+                    $lastId,
+                    $totalFetched,
+
                 )->delay(
                     now()->addSeconds(2)
                 );

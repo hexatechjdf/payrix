@@ -32,7 +32,7 @@ class PullOptionsJob implements ShouldQueue
         $existingMappings = $this->existing_record;
         $allData      = [];
         $totalFetched  = 0;
-        $lastId    = 493 ?? null;
+        $lastId    =  null;
 
         $params = $this->param;
 
@@ -55,13 +55,13 @@ class PullOptionsJob implements ShouldQueue
 
            $response = $fieldService->{$method}($params);
 
+
             if (empty($response)) {
                 break;
             }
 
             $count = $response['count'] ?? 0;
             $data = $response[$data_key] ?? [];
-
 
             if (empty($data)) {
                 break;
@@ -77,12 +77,14 @@ class PullOptionsJob implements ShouldQueue
         } while ($totalFetched < $count);
 
         $groupedByOffice = collect($allData)->groupBy($groupby_key);
+
+
         foreach($existingMappings as $key => $loc)
         {
+
             $res = $groupedByOffice[$key];
             SetOptionsJob::dispatchSync($this->data_key,$res,$loc,$this->is_delay);
         }
 
-        dd($groupedByOffice);
     }
 }
