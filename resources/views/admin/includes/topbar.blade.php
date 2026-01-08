@@ -1,5 +1,6 @@
+@php($role = @$user->role)
 <div class="primary-menu">
-    <nav class="navbar navbar-expand-lg align-items-center">
+    <nav class="navbar navbar-expand-lg align-items-center {{ $role == 1 ? 'top-0' : '' }}">
         <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
             <div class="offcanvas-header border-bottom">
                 <div class="d-flex align-items-center">
@@ -15,35 +16,58 @@
             <div class="offcanvas-body">
 
                 <ul class="navbar-nav align-items-center flex-grow-1">
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('admin.index') }}">
-                            <i class="bx bx-home-alt"></i>
-                            <span class="menu-title">Dashboard</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('admin.settings') }}">
-                            <i class="bx bx-cube"></i>
-                            <span class="menu-title">Settings</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="javascript:;"
-                            data-bs-toggle="dropdown">
-                            <div class="parent-icon"><i class='bx bx-message-square-edit'></i>
-                            </div>
-                            <div class="menu-title d-flex align-items-center">Mappings</div>
-                            <div class="ms-auto dropy-icon"><i class='bx bx-chevron-down'></i></div>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li> <a class="dropdown-item" href="{{ route('admin.mappings.offices') }}"><i
-                                        class='bx bx-message-square-dots'></i>Offices</a>
-                            </li>
-                        </ul>
-                    </li>
+                    @if ($role == 0)
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.index') }}">
+                                <i class="bx bx-home-alt"></i>
+                                <span class="menu-title">Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.settings') }}">
+                                <i class="bx bx-cube"></i>
+                                <span class="menu-title">Settings</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="javascript:;"
+                                data-bs-toggle="dropdown">
+                                <div class="parent-icon"><i class='bx bx-message-square-edit'></i>
+                                </div>
+                                <div class="menu-title d-flex align-items-center">Mappings</div>
+                                <div class="ms-auto dropy-icon"><i class='bx bx-chevron-down'></i></div>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li> <a class="dropdown-item" href="{{ route('admin.mappings.offices') }}"><i
+                                            class='bx bx-message-square-dots'></i>Offices</a>
+                                </li>
+                            </ul>
+                        </li>
+                    @else
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('location.index') }}">
+                                <i class="bx bx-cube"></i>
+                                <span class="menu-title">Settings</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="javascript:;"
+                                data-bs-toggle="dropdown">
+                                <div class="parent-icon"><i class='bx bx-message-square-edit'></i>
+                                </div>
+                                <div class="menu-title d-flex align-items-center">Mappings</div>
+                                <div class="ms-auto dropy-icon"><i class='bx bx-chevron-down'></i></div>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li> <a class="dropdown-item" href="{{ route('mappings.employees.index') }}"><i
+                                            class='bx bx-message-square-dots'></i>Employees</a>
+                                </li>
+                                <li> <a class="dropdown-item" href="{{ route('mappings.calendar.index') }}"><i
+                                            class='bx bx-message-square-dots'></i>Calendars</a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endif
 
                 </ul>
 

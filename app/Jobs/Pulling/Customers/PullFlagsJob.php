@@ -45,7 +45,6 @@ class PullFlagsJob implements ShouldQueue
     public function handle(FieldRouteService $fieldService)
     {
         $params = $this->param;
-        $id = $this->office_id ?? null;
 
         list($keys,$existingMappings) = $this->office_ids ?? getOfficeParams();
 

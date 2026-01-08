@@ -448,6 +448,7 @@ class CRM
 
     public static function decryptSSO($payload, $ssoKey = '')
     {
+        dd($payload);
         if (empty($ssoKey)) {
             $ssoKey = config('services.sso_key');
         }
@@ -1265,11 +1266,9 @@ class CRM
             }
 
             $response = self::crmV2($token->user_id, $endPoint, 'GET', '', [], false, $locationId, $token);
-            dd($response);
 
             if ($response && property_exists($response, 'users')) {
                 $users = $response->users ?? null;
-
                 // $calenders = collect($users)->toArray(); //->pluck('name', 'id')
             }
 
@@ -1411,14 +1410,20 @@ class CRM
 
     public static function manageCutomField($payload, $locationId,$token,$method, $url,$column_key)
     {
+        // dd($payload);
         try {
 
             $response = self::crmV2($token->user_id, $url, $method, $payload, [], true, $locationId, $token);
+            \Log::info([$response]);
+            \Log::info([$payload]);
 
             if ($response && property_exists($response, 'customField')) {
 
                 $matchedField = $response->customField;
-                updateOrCreateField($locationId,$matchedField->id,$matchedField->picklistOptions ?? [],$column_key);
+                if($column_key != 'none')
+                {
+                    updateOrCreateField($locationId,$matchedField->id,$matchedField->picklistOptions ?? [],$column_key);
+                }
             }
 
         } catch (\Exception $e) {

@@ -126,6 +126,87 @@ return [
         'notes' => 'notes',
         'startTime' => 'start',
         'endTime' => 'end',
-    ];,
+    ],
+
+    'subscription' => [
+        'fields' => [
+            'id' => [
+                'name'    => 'Subscription ID',
+                'type'    => 'TEXT',
+                'default' => null,
+            ],
+            'dateAdded' => [
+                'name'    => 'Date Added',
+                'type'    => 'TEXT',
+                'default' => "",
+            ],
+            'activeText' => [
+                'name'    => 'Status',
+                'type'    => 'SINGLE_OPTIONS',
+                'default' => '',
+                'options' => ['frozen', 'active'],
+            ],
+            'recurringCharge' => [
+                'name'    => 'Recurring Charge',
+                'type'    => 'NUMERICAL',
+                'default' => 0,
+            ],
+            'billingFrequency' => [
+                'name'    => 'Billing Frequency',
+                'type'    => 'TEXT',
+                'default' => 0,
+            ],
+            'nextService' => [
+                'name'    => 'Next Service Date',
+                'type'    => 'TEXT',
+                'default' => null,
+            ],
+            'lastCompleted' => [
+                'name'    => 'Last Completed Date',
+                'type'    => 'TEXT',
+                'default' => null,
+            ],
+            'serviceType' => [
+                'name'    => 'Service Type',
+                'type'    => 'TEXT',
+                'default' => null,
+            ],
+            'soldBy' => [
+                'name'    => 'Sold By Employee ID',
+                'type'    => 'TEXT',
+                'default' => null,
+            ],
+            'addedBy' => [
+                'name'    => 'Added By Employee ID',
+                'type'    => 'TEXT',
+                'default' => null,
+            ],
+            'dateCancelled' => [
+                'name'    => 'Cancelled Date',
+                'type'    => 'TEXT',
+                'default' => null,
+            ],
+            'subscriptionLink' => [
+                'name'    => 'Subscription Link',
+                'type'    => 'TEXT',
+                'default' => '',
+            ],
+            'source' => [
+                'name'    => 'Subscription Source',
+                'type'    => 'TEXT',
+                'default' => '',
+            ],
+            'renewalDate' => [
+                'name'    => 'Next Renewal Date',
+                'type'    => 'TEXT',
+                'default' => null,
+            ],
+            'nextBillingDate' => [
+                'name'    => 'Next Billing Date',
+                'type'    => 'TEXT',
+                'default' => null,
+            ],
+        ],
+    ]
 
 ];

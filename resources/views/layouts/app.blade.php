@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="{{ asset('assets/plugins/simplebar/css/simplebar.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/plugins/metismenu/css/metisMenu.min.css') }}" rel="stylesheet" />
@@ -18,13 +19,16 @@
     <link rel="stylesheet" href="{{ asset('assets/css/semi-dark.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/header-colors.css') }}" />
 
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 
     <title>Admin Panel </title>
 
     <style>
-        .alert ul li{
-            list-style:none;
+        .alert ul li {
+            list-style: none;
+        }
+        .top-0{
+            top: 0 !important;
         }
     </style>
     @stack('style')
@@ -32,11 +36,15 @@
 
 <body class="font-sans antialiased">
 
-
+    @php($user = loginUser())
     <div class="wrapper">
         <div class="header-wrapper">
-            @include('admin.includes.header')
-            @include('admin.includes.topbar')
+            @if ($user->role == 0)
+                @include('admin.includes.header')
+            @endif
+
+            @include('admin.includes.topbar',['user' => $user])
+
 
         </div>
         <div class="page-wrapper">
@@ -63,7 +71,7 @@
     {{-- <script src="{{ asset('assets/js/index5.js') }}"></script> --}}
     <script src="{{ asset('assets/js/app.js') }}"></script>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 
     @stack('script')

@@ -366,10 +366,16 @@ function getFieldRoutsKeys()
 }
 
 
-function getOfficeParams($location_id = null,$office_id = null)
+function getOfficeParams($location_id = null,$office_id = null,$type = 'mapping')
 {
     $existingMappings = [];
     $keys = [];
+
+    if($type == 'office' && $location_id)
+    {
+        $office = OfficeMapping::where('location_id',$location_id)->first();
+        return @$office->office_id;
+    }
 
     if(!$location_id)
     {
